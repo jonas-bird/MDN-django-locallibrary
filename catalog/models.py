@@ -26,7 +26,7 @@ class Genre(models.Model):
         constraints = [
             UniqueConstraint(
                 Lower('name'),
-                name='genre_name_vase_insensitive_unique',
+                name='genre_name_case_insensitive_unique',
                 violation_error_message = "Genre already exists (case insensitive match)"
             ),
         ]
@@ -59,6 +59,7 @@ class BookInstance(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4,
                           help_text="Unique ID for this particular book across whole library")
     book = models.ForeignKey('Book', on_delete=models.RESTRICT, null=True)
+    language = models.ForeignKey('Language', on_delete=models.RESTRICT, null=True)
     imprint = models.CharField(max_length=200)
     due_back = models.DateField(null=True, blank=True)
 
@@ -102,3 +103,30 @@ class Author(models.Model):
     def __str__(self):
         """String for representing the Model object."""
         return f'{self.last_name}, {self.first_name}'
+
+
+class Language(models.Model):
+    name = models.CharField(max_length=100,
+                            help_text="Enter the books language")
+    scriptName = models.CharField(max_length=100,
+                                  help_text="Enter the script the language is written in")
+    SCRIPT_DIRECTION = (
+        ('tb', "Top to bottom"),
+        ('rl', "Right to left"),
+        ('lr', "Left to right"),
+    )
+    scriptDirection = models.CharField(choices=SCRIPT_DIRECTION,
+                                       max_length=2,
+                                       default='lr',
+                                       help_text="Enter the direction the script is writen in")
+
+    class Meta:
+        unique_together = ('name', 'scriptName')
+
+    def __str__(self):
+        """String representation of language"""
+        return f'{self.name}, written in {self.script}.'
+
+    def get_absolute_url(self):
+        """Return the url to access a language instance"""
+        return reverse('language-detail', args=[str(self.id)])
