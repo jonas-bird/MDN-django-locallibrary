@@ -43,7 +43,8 @@ class Book(models.Model):
                             help_text='13 Character <a href="https://www.isbn-international.org/content/what-isbn''">ISBN number</a>')
     # ManyToManyField used because genre can contain many books. Books can cover many genres.
     genre = models.ManyToManyField(Genre, help_text="Select a genre for this book")
-
+    language = models.ForeignKey(
+        'Language', on_delete=models.SET_NULL, null=True)
     def __str__(self):
         """String representation of a book"""
         return self.title
@@ -59,7 +60,6 @@ class BookInstance(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4,
                           help_text="Unique ID for this particular book across whole library")
     book = models.ForeignKey('Book', on_delete=models.RESTRICT, null=True)
-    language = models.ForeignKey('Language', on_delete=models.RESTRICT, null=True)
     imprint = models.CharField(max_length=200)
     due_back = models.DateField(null=True, blank=True)
 
